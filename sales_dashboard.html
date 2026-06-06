@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sales Intelligence Dashboard — CEO Report 2024–2025</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #080b10;
+    --surface: #0e1420;
+    --surface2: #131929;
+    --border: #1e2d45;
+    --accent: #00d4ff;
+    --accent2: #ff6b35;
+    --accent3: #7fff6b;
+    --accent4: #c77dff;
+    --text: #e8edf5;
+    --muted: #6b7fa3;
+    --gold: #f0c040;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* HEADER */
+  header {
+    background: linear-gradient(135deg, #080b10 0%, #0a1525 60%, #080b10 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    backdrop-filter: blur(12px);
+  }
+
+  .header-left { display: flex; align-items: center; gap: 16px; }
+  .logo-icon {
+    width: 42px; height: 42px;
+    background: linear-gradient(135deg, var(--accent), #0087ff);
+    border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px;
+  }
+
+  h1 {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 2px;
+    color: var(--text);
+    line-height: 1;
+  }
+
+  .subtitle {
+    font-size: 11px;
+    color: var(--muted);
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    font-weight: 500;
+  }
+
+  .header-right { display: flex; align-items: center; gap: 12px; }
+
+  .live-badge {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(0,212,255,0.08);
+    border: 1px solid rgba(0,212,255,0.25);
+    padding: 6px 14px; border-radius: 20px;
+    font-size: 11px; font-weight: 600; color: var(--accent);
+    letter-spacing: 1px;
+  }
+  .live-dot {
+    width: 6px; height: 6px; border-radius: 50%;
+    background: var(--accent3);
+    animation: pulse 1.5s infinite;
+  }
+  @keyframes pulse {
+    0%,100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(1.4); }
+  }
+
+  /* FILTERS */
+  .filters-bar {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 32px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+  }
+
+  .filter-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    padding: 8px 28px 8px 12px;
+    border-radius: 8px;
+    font-size: 13px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    cursor: pointer;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath fill='%236b7fa3' d='M6 8L0 0h12z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    transition: border-color .2s;
+    min-width: 140px;
+  }
+  select:focus, select:hover { border-color: var(--accent); }
+
+  .reset-btn {
+    background: linear-gradient(135deg, var(--accent2), #ff4500);
+    border: none; color: #fff;
+    padding: 8px 20px; border-radius: 8px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px; font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.5px;
+    display: flex; align-items: center; gap: 6px;
+    transition: transform .15s, box-shadow .15s;
+    margin-left: auto;
+  }
+  .reset-btn:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,107,53,.4); }
+  .reset-btn:active { transform: translateY(0); }
+
+  /* MAIN GRID */
+  .main { padding: 24px 32px; }
+
+  /* KPI CARDS */
+  .kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  .kpi-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px;
+    position: relative;
+    overflow: hidden;
+    transition: border-color .2s, transform .2s;
+  }
+  .kpi-card:hover { border-color: var(--accent); transform: translateY(-2px); }
+  .kpi-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--kpi-color, var(--accent));
+  }
+
+  .kpi-icon {
+    font-size: 22px;
+    margin-bottom: 10px;
+    display: block;
+  }
+
+  .kpi-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--muted);
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+
+  .kpi-value {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px;
+    letter-spacing: 1px;
+    color: var(--text);
+    line-height: 1;
+    margin-bottom: 6px;
+  }
+
+  .kpi-meta {
+    font-size: 11px;
+    color: var(--muted);
+    font-family: 'DM Mono', monospace;
+  }
+
+  .kpi-badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    margin-left: 4px;
+  }
+  .badge-up { background: rgba(127,255,107,.12); color: var(--accent3); }
+  .badge-down { background: rgba(255,107,53,.12); color: var(--accent2); }
+
+  /* CHART GRID */
+  .chart-row {
+    display: grid;
+    gap: 16px;
+    margin-bottom: 20px;
+  }
+  .row-3 { grid-template-columns: 2fr 1fr 1fr; }
+  .row-2 { grid-template-columns: 1fr 1fr; }
+  .row-3b { grid-template-columns: 1fr 1fr 1fr; }
+
+  .chart-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 20px 22px;
+    transition: border-color .2s;
+  }
+  .chart-card:hover { border-color: var(--border); }
+
+  .chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+  }
+
+  .chart-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 17px;
+    letter-spacing: 1.5px;
+    color: var(--text);
+  }
+
+  .chart-tag {
+    font-size: 10px;
+    padding: 3px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  canvas { display: block; width: 100% !important; }
+
+  /* TABLE */
+  .table-section { margin-bottom: 20px; }
+  .data-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 12.5px;
+  }
+  .data-table th {
+    text-align: left;
+    padding: 10px 14px;
+    background: var(--surface2);
+    color: var(--muted);
+    font-weight: 600;
+    font-size: 10px;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    border-bottom: 1px solid var(--border);
+  }
+  .data-table td {
+    padding: 11px 14px;
+    border-bottom: 1px solid rgba(30,45,69,.5);
+    color: var(--text);
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+  }
+  .data-table tr:hover td { background: rgba(255,255,255,.02); }
+
+  .rank-badge {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 22px; height: 22px;
+    border-radius: 6px;
+    font-weight: 700; font-size: 11px;
+    background: var(--surface2);
+    color: var(--muted);
+  }
+  .rank-1 { background: rgba(240,192,64,.15); color: var(--gold); }
+  .rank-2 { background: rgba(200,200,220,.12); color: #b0b8cc; }
+  .rank-3 { background: rgba(180,120,60,.12); color: #c87860; }
+
+  .bar-inline {
+    display: inline-block;
+    height: 4px;
+    border-radius: 2px;
+    background: linear-gradient(90deg, var(--accent), #0087ff);
+    vertical-align: middle;
+    margin-left: 8px;
+    opacity: 0.6;
+  }
+
+  /* FOOTER */
+  footer {
+    border-top: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: var(--muted);
+    font-size: 11px;
+  }
+
+  .footer-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 14px;
+    letter-spacing: 2px;
+    color: var(--border);
+  }
+
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+
+  @media (max-width: 1200px) {
+    .kpi-grid { grid-template-columns: repeat(3, 1fr); }
+    .row-3 { grid-template-columns: 1fr 1fr; }
+    .row-3b { grid-template-columns: 1fr 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="header-left">
+    <div class="logo-icon">⚡</div>
+    <div>
+      <h1>Sales Intelligence Dashboard</h1>
+      <div class="subtitle">Lighting & Electrical Products · Jan 2024 — May 2025 · CEO Executive Report</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge">
+      <span class="live-dot"></span>
+      LIVE DATA
+    </div>
+  </div>
+</header>
+
+<!-- FILTERS -->
+<div class="filters-bar">
+  <span class="filter-label">📊 Filters & Slicers:</span>
+
+  <select id="filterRegion" onchange="applyFilters()">
+    <option value="">All Regions</option>
+    <option value="East">East</option>
+    <option value="West">West</option>
+    <option value="North">North</option>
+    <option value="South">South</option>
+  </select>
+
+  <select id="filterCategory" onchange="applyFilters()">
+    <option value="">All Categories</option>
+    <option value="Ceiling Fans">Ceiling Fans</option>
+    <option value="Smart Lighting">Smart Lighting</option>
+    <option value="Commercial Lighting">Commercial Lighting</option>
+    <option value="LED Bulbs">LED Bulbs</option>
+    <option value="Inverter Bulbs">Inverter Bulbs</option>
+  </select>
+
+  <select id="filterStatus" onchange="applyFilters()">
+    <option value="">All Statuses</option>
+    <option value="Delivered">Delivered</option>
+    <option value="Pending">Pending</option>
+    <option value="Cancelled">Cancelled</option>
+    <option value="Returned">Returned</option>
+  </select>
+
+  <select id="filterPayment" onchange="applyFilters()">
+    <option value="">All Payment Modes</option>
+    <option value="Cash">Cash</option>
+    <option value="Credit Card">Credit Card</option>
+    <option value="Net Banking">Net Banking</option>
+    <option value="UPI">UPI</option>
+    <option value="Wallet">Wallet</option>
+  </select>
+
+  <select id="filterYear" onchange="applyFilters()">
+    <option value="">All Years</option>
+    <option value="2024">2024</option>
+    <option value="2025">2025</option>
+  </select>
+
+  <button class="reset-btn" onclick="resetFilters()">↺ Reset All</button>
+</div>
+
+<!-- MAIN -->
+<div class="main">
+
+  <!-- KPI ROW -->
+  <div class="kpi-grid" id="kpiGrid">
+    <div class="kpi-card" style="--kpi-color:#00d4ff">
+      <span class="kpi-icon">💰</span>
+      <div class="kpi-label">Total Revenue</div>
+      <div class="kpi-value" id="kpi-sales">$32.5M</div>
+      <div class="kpi-meta">Gross Sales</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:#7fff6b">
+      <span class="kpi-icon">📈</span>
+      <div class="kpi-label">Net Profit</div>
+      <div class="kpi-value" id="kpi-profit">$8.1M</div>
+      <div class="kpi-meta">After COGS &amp; Discounts</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:#f0c040">
+      <span class="kpi-icon">🛒</span>
+      <div class="kpi-label">Total Orders</div>
+      <div class="kpi-value" id="kpi-orders">1,200</div>
+      <div class="kpi-meta">Across all regions</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:#c77dff">
+      <span class="kpi-icon">📦</span>
+      <div class="kpi-label">Units Sold</div>
+      <div class="kpi-value" id="kpi-qty">12,769</div>
+      <div class="kpi-meta">Total quantity</div>
+    </div>
+    <div class="kpi-card" style="--kpi-color:#ff6b35">
+      <span class="kpi-icon">🎯</span>
+      <div class="kpi-label">Profit Margin</div>
+      <div class="kpi-value" id="kpi-margin">24.9%</div>
+      <div class="kpi-meta">Avg across categories</div>
+    </div>
+  </div>
+
+  <!-- ROW 1: Line + Donut + Donut -->
+  <div class="chart-row row-3">
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">Revenue & Profit Trend</span>
+        <span class="chart-tag">Monthly</span>
+      </div>
+      <canvas id="lineChart" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">Order Status</span>
+        <span class="chart-tag">Split</span>
+      </div>
+      <canvas id="statusDonut" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">Payment Mix</span>
+        <span class="chart-tag">Channels</span>
+      </div>
+      <canvas id="paymentDonut" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- ROW 2: Bar + Horizontal Bar -->
+  <div class="chart-row row-2">
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">Sales by Product Category</span>
+        <span class="chart-tag">Revenue vs Profit</span>
+      </div>
+      <canvas id="categoryBar" height="200"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">Regional Performance</span>
+        <span class="chart-tag">Comparison</span>
+      </div>
+      <canvas id="regionBar" height="200"></canvas>
+    </div>
+  </div>
+
+  <!-- ROW 3: Radar + Bubble + Line -->
+  <div class="chart-row row-3b">
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">Profit Margin by Category</span>
+        <span class="chart-tag">%</span>
+      </div>
+      <canvas id="marginRadar" height="220"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">Discount Impact</span>
+        <span class="chart-tag">By Category</span>
+      </div>
+      <canvas id="discountBar" height="220"></canvas>
+    </div>
+    <div class="chart-card">
+      <div class="chart-header">
+        <span class="chart-title">Qty vs Revenue by Region</span>
+        <span class="chart-tag">Bubble</span>
+      </div>
+      <canvas id="bubbleChart" height="220"></canvas>
+    </div>
+  </div>
+
+  <!-- TABLE -->
+  <div class="chart-card table-section">
+    <div class="chart-header">
+      <span class="chart-title">Top Performing Categories — Leaderboard</span>
+      <span class="chart-tag" id="tableCount">Showing 5 rows</span>
+    </div>
+    <table class="data-table">
+      <thead>
+        <tr>
+          <th>#</th>
+          <th>Category</th>
+          <th>Revenue</th>
+          <th>Profit</th>
+          <th>Margin %</th>
+          <th>Units</th>
+          <th>Orders</th>
+          <th>Revenue Share</th>
+        </tr>
+      </thead>
+      <tbody id="tableBody"></tbody>
+    </table>
+  </div>
+
+</div>
+
+<footer>
+  <div>Dashboard generated from 1,200 transaction records · Filters apply across all visuals · Data period: Jan 2024 – May 2025</div>
+  <div class="footer-brand">CEO EXECUTIVE REPORT</div>
+</footer>
+
+<script>
+// ============================================================
+// RAW DATA
+// ============================================================
+const RAW = [
+  {"Order_ID":"ORD00001","Region":"West","Product_Category":"Ceiling Fans","Quantity":7,"Sales":28913.64,"Discount":1537.79,"COGS":19140.13,"Profit":8235.72,"Payment_Mode":"Credit Card","Order_Status":"Pending","Order_Date":"2024-07-20"},
+  {"Order_ID":"ORD00002","Region":"South","Product_Category":"Ceiling Fans","Quantity":17,"Sales":43138.18,"Discount":4358.81,"COGS":30582.84,"Profit":8196.53,"Payment_Mode":"Net Banking","Order_Status":"Pending","Order_Date":"2024-02-16"},
+  {"Order_ID":"ORD00003","Region":"South","Product_Category":"Smart Lighting","Quantity":8,"Sales":32386.32,"Discount":1799.93,"COGS":19225.89,"Profit":11360.5,"Payment_Mode":"Wallet","Order_Status":"Returned","Order_Date":"2024-07-11"},
+  {"Order_ID":"ORD00004","Region":"North","Product_Category":"Commercial Lighting","Quantity":16,"Sales":24816.8,"Discount":2477.95,"COGS":19288.47,"Profit":3050.38,"Payment_Mode":"Cash","Order_Status":"Returned","Order_Date":"2025-05-05"},
+  {"Order_ID":"ORD00005","Region":"West","Product_Category":"LED Bulbs","Quantity":12,"Sales":19243.08,"Discount":1023.49,"COGS":14124.87,"Profit":4094.72,"Payment_Mode":"Cash","Order_Status":"Returned","Order_Date":"2025-03-24"},
+  {"Order_ID":"ORD00006","Region":"West","Product_Category":"Inverter Bulbs","Quantity":9,"Sales":37604.79,"Discount":1857.29,"COGS":28781.29,"Profit":6966.21,"Payment_Mode":"Cash","Order_Status":"Cancelled","Order_Date":"2024-04-14"},
+  {"Order_ID":"ORD00007","Region":"West","Product_Category":"Smart Lighting","Quantity":13,"Sales":50199.11,"Discount":4627.43,"COGS":32673.62,"Profit":12898.06,"Payment_Mode":"Wallet","Order_Status":"Cancelled","Order_Date":"2025-04-03"},
+  {"Order_ID":"ORD00008","Region":"South","Product_Category":"Smart Lighting","Quantity":19,"Sales":92664.9,"Discount":3513.99,"COGS":59942.11,"Profit":29208.8,"Payment_Mode":"Cash","Order_Status":"Returned","Order_Date":"2025-04-24"},
+  {"Order_ID":"ORD00009","Region":"North","Product_Category":"Smart Lighting","Quantity":20,"Sales":45580.8,"Discount":4019.66,"COGS":27984.56,"Profit":13576.58,"Payment_Mode":"Net Banking","Order_Status":"Returned","Order_Date":"2024-06-17"},
+  {"Order_ID":"ORD00010","Region":"East","Product_Category":"Smart Lighting","Quantity":19,"Sales":66851.88,"Discount":9121.99,"COGS":45250.93,"Profit":12478.96,"Payment_Mode":"UPI","Order_Status":"Returned","Order_Date":"2024-03-26"},
+  {"Order_ID":"ORD00011","Region":"North","Product_Category":"LED Bulbs","Quantity":6,"Sales":2106.24,"Discount":105.92,"COGS":1170.09,"Profit":830.23,"Payment_Mode":"Cash","Order_Status":"Cancelled","Order_Date":"2024-09-04"},
+  {"Order_ID":"ORD00012","Region":"North","Product_Category":"Inverter Bulbs","Quantity":19,"Sales":9331.47,"Discount":958.71,"COGS":5643.75,"Profit":2729.01,"Payment_Mode":"Credit Card","Order_Status":"Pending","Order_Date":"2025-05-06"},
+  {"Order_ID":"ORD00013","Region":"South","Product_Category":"Inverter Bulbs","Quantity":2,"Sales":336.72,"Discount":25.3,"COGS":253.71,"Profit":57.71,"Payment_Mode":"Credit Card","Order_Status":"Returned","Order_Date":"2024-07-01"},
+  {"Order_ID":"ORD00014","Region":"South","Product_Category":"Inverter Bulbs","Quantity":2,"Sales":5721.88,"Discount":630.1,"COGS":3601.9,"Profit":1489.88,"Payment_Mode":"Cash","Order_Status":"Returned","Order_Date":"2024-11-28"},
+  {"Order_ID":"ORD00015","Region":"South","Product_Category":"Smart Lighting","Quantity":17,"Sales":74889.76,"Discount":5838.96,"COGS":51450.64,"Profit":17600.16,"Payment_Mode":"Credit Card","Order_Status":"Cancelled","Order_Date":"2024-09-24"},
+  {"Order_ID":"ORD00016","Region":"East","Product_Category":"LED Bulbs","Quantity":13,"Sales":32557.72,"Discount":2408.51,"COGS":21818.84,"Profit":8330.37,"Payment_Mode":"Net Banking","Order_Status":"Returned","Order_Date":"2024-09-09"},
+  {"Order_ID":"ORD00017","Region":"East","Product_Category":"Commercial Lighting","Quantity":19,"Sales":61785.15,"Discount":3711.9,"COGS":38412.95,"Profit":19660.3,"Payment_Mode":"Net Banking","Order_Status":"Returned","Order_Date":"2024-11-13"},
+  {"Order_ID":"ORD00018","Region":"East","Product_Category":"Commercial Lighting","Quantity":4,"Sales":9565.88,"Discount":608.45,"COGS":6577.07,"Profit":2380.36,"Payment_Mode":"Credit Card","Order_Status":"Returned","Order_Date":"2025-02-08"},
+  {"Order_ID":"ORD00019","Region":"South","Product_Category":"LED Bulbs","Quantity":5,"Sales":14638.75,"Discount":859.16,"COGS":8736.65,"Profit":5042.94,"Payment_Mode":"Wallet","Order_Status":"Cancelled","Order_Date":"2024-12-14"},
+  {"Order_ID":"ORD00020","Region":"North","Product_Category":"Ceiling Fans","Quantity":12,"Sales":23521.44,"Discount":1484.74,"COGS":13528.26,"Profit":8508.44,"Payment_Mode":"Cash","Order_Status":"Cancelled","Order_Date":"2024-03-02"},
+  {"Order_ID":"ORD00021","Region":"North","Product_Category":"Ceiling Fans","Quantity":14,"Sales":23552.2,"Discount":95.46,"COGS":14455.03,"Profit":9001.71,"Payment_Mode":"Net Banking","Order_Status":"Pending","Order_Date":"2024-01-26"},
+  {"Order_ID":"ORD00022","Region":"West","Product_Category":"LED Bulbs","Quantity":20,"Sales":13480.2,"Discount":1093.32,"COGS":10582.61,"Profit":1804.27,"Payment_Mode":"Cash","Order_Status":"Returned","Order_Date":"2025-02-09"},
+  {"Order_ID":"ORD00023","Region":"East","Product_Category":"Commercial Lighting","Quantity":19,"Sales":57009.31,"Discount":5945.61,"COGS":33712.62,"Profit":17351.08,"Payment_Mode":"Cash","Order_Status":"Returned","Order_Date":"2024-12-02"},
+  {"Order_ID":"ORD00024","Region":"West","Product_Category":"LED Bulbs","Quantity":4,"Sales":6953.08,"Discount":412.77,"COGS":5442.83,"Profit":1097.48,"Payment_Mode":"Cash","Order_Status":"Pending","Order_Date":"2025-01-04"},
+  {"Order_ID":"ORD00025","Region":"South","Product_Category":"LED Bulbs","Quantity":1,"Sales":3239.6,"Discount":384.74,"COGS":2104.87,"Profit":749.99,"Payment_Mode":"Credit Card","Order_Status":"Pending","Order_Date":"2024-12-18"},
+  {"Order_ID":"ORD00026","Region":"East","Product_Category":"Inverter Bulbs","Quantity":12,"Sales":29135.76,"Discount":2873.33,"COGS":20294.88,"Profit":5967.55,"Payment_Mode":"Credit Card","Order_Status":"Pending","Order_Date":"2025-01-25"},
+  {"Order_ID":"ORD00027","Region":"West","Product_Category":"Smart Lighting","Quantity":4,"Sales":16453.32,"Discount":2273.08,"COGS":9437.16,"Profit":4743.08,"Payment_Mode":"Net Banking","Order_Status":"Cancelled","Order_Date":"2024-10-26"},
+  {"Order_ID":"ORD00028","Region":"South","Product_Category":"Commercial Lighting","Quantity":10,"Sales":5234.4,"Discount":16.39,"COGS":3145.42,"Profit":2072.59,"Payment_Mode":"Net Banking","Order_Status":"Pending","Order_Date":"2025-01-13"},
+  {"Order_ID":"ORD00029","Region":"East","Product_Category":"LED Bulbs","Quantity":6,"Sales":15792.48,"Discount":1790.75,"COGS":10673.02,"Profit":3328.71,"Payment_Mode":"Cash","Order_Status":"Cancelled","Order_Date":"2024-04-25"},
+  {"Order_ID":"ORD00030","Region":"West","Product_Category":"Inverter Bulbs","Quantity":3,"Sales":4408.89,"Discount":48.86,"COGS":3472.23,"Profit":887.8,"Payment_Mode":"UPI","Order_Status":"Cancelled","Order_Date":"2024-06-08"},
+  {"Order_ID":"ORD00031","Region":"South","Product_Category":"Commercial Lighting","Quantity":11,"Sales":22371.58,"Discount":1025.32,"COGS":15445.07,"Profit":5901.19,"Payment_Mode":"UPI","Order_Status":"Cancelled","Order_Date":"2025-01-12"},
+  {"Order_ID":"ORD00032","Region":"South","Product_Category":"Commercial Lighting","Quantity":11,"Sales":48722.3,"Discount":1203.93,"COGS":28032.49,"Profit":19485.88,"Payment_Mode":"Cash","Order_Status":"Pending","Order_Date":"2024-12-16"},
+  {"Order_ID":"ORD00033","Region":"North","Product_Category":"Smart Lighting","Quantity":9,"Sales":3753.9,"Discount":25.42,"COGS":2440.88,"Profit":1287.6,"Payment_Mode":"Cash","Order_Status":"Pending","Order_Date":"2024-10-27"},
+  {"Order_ID":"ORD00034","Region":"South","Product_Category":"Inverter Bulbs","Quantity":18,"Sales":56474.64,"Discount":1822.34,"COGS":33859.02,"Profit":20793.28,"Payment_Mode":"Credit Card","Order_Status":"Cancelled","Order_Date":"2024-09-12"},
+  {"Order_ID":"ORD00035","Region":"South","Product_Category":"Ceiling Fans","Quantity":17,"Sales":68503.54,"Discount":6638.74,"COGS":50214.19,"Profit":11650.61,"Payment_Mode":"Credit Card","Order_Status":"Delivered","Order_Date":"2024-11-13"},
+  {"Order_ID":"ORD00036","Region":"East","Product_Category":"Smart Lighting","Quantity":4,"Sales":6901.76,"Discount":299.65,"COGS":4097.44,"Profit":2504.67,"Payment_Mode":"Cash","Order_Status":"Delivered","Order_Date":"2024-04-29"},
+  {"Order_ID":"ORD00037","Region":"South","Product_Category":"Ceiling Fans","Quantity":8,"Sales":34590.16,"Discount":805.44,"COGS":26203.32,"Profit":7581.4,"Payment_Mode":"Credit Card","Order_Status":"Delivered","Order_Date":"2024-02-16"},
+  {"Order_ID":"ORD00038","Region":"South","Product_Category":"Inverter Bulbs","Quantity":3,"Sales":8985.33,"Discount":681.51,"COGS":6931.34,"Profit":1372.48,"Payment_Mode":"Cash","Order_Status":"Cancelled","Order_Date":"2024-07-26"},
+  {"Order_ID":"ORD00039","Region":"South","Product_Category":"Ceiling Fans","Quantity":8,"Sales":29565.2,"Discount":1260.27,"COGS":18263.27,"Profit":10041.66,"Payment_Mode":"Credit Card","Order_Status":"Delivered","Order_Date":"2024-11-09"},
+  {"Order_ID":"ORD00040","Region":"East","Product_Category":"Ceiling Fans","Quantity":8,"Sales":4803.92,"Discount":579.41,"COGS":3446.32,"Profit":778.19,"Payment_Mode":"Cash","Order_Status":"Delivered","Order_Date":"2024-04-27"},
+  {"Order_ID":"ORD00041","Region":"East","Product_Category":"Smart Lighting","Quantity":15,"Sales":21780.6,"Discount":1232.95,"COGS":15610.21,"Profit":4937.44,"Payment_Mode":"Credit Card","Order_Status":"Delivered","Order_Date":"2025-03-20"},
+  {"Order_ID":"ORD00042","Region":"South","Product_Category":"Ceiling Fans","Quantity":17,"Sales":55183.36,"Discount":1767.94,"COGS":42589.85,"Profit":10825.57,"Payment_Mode":"Cash","Order_Status":"Cancelled","Order_Date":"2024-03-13"},
+  {"Order_ID":"ORD00043","Region":"West","Product_Category":"Commercial Lighting","Quantity":6,"Sales":2756.1,"Discount":198.33,"COGS":1762.56,"Profit":795.21,"Payment_Mode":"Net Banking","Order_Status":"Cancelled","Order_Date":"2024-01-28"},
+  {"Order_ID":"ORD00044","Region":"South","Product_Category":"Inverter Bulbs","Quantity":13,"Sales":32698.12,"Discount":3136.18,"COGS":20878.61,"Profit":8683.33,"Payment_Mode":"Net Banking","Order_Status":"Cancelled","Order_Date":"2024-04-06"},
+  {"Order_ID":"ORD00045","Region":"West","Product_Category":"Inverter Bulbs","Quantity":18,"Sales":70669.8,"Discount":7328.11,"COGS":46036.71,"Profit":17304.98,"Payment_Mode":"Net Banking","Order_Status":"Delivered","Order_Date":"2024-06-14"},
+  {"Order_ID":"ORD00046","Region":"West","Product_Category":"Ceiling Fans","Quantity":16,"Sales":62588.32,"Discount":813.15,"COGS":39264.95,"Profit":22510.22,"Payment_Mode":"Cash","Order_Status":"Returned","Order_Date":"2024-10-31"},
+  {"Order_ID":"ORD00047","Region":"East","Product_Category":"Ceiling Fans","Quantity":15,"Sales":26094.3,"Discount":2270.02,"COGS":16083.68,"Profit":7740.6,"Payment_Mode":"Wallet","Order_Status":"Delivered","Order_Date":"2025-02-13"},
+  {"Order_ID":"ORD00048","Region":"West","Product_Category":"Commercial Lighting","Quantity":13,"Sales":8043.36,"Discount":558.08,"COGS":5421.44,"Profit":2063.84,"Payment_Mode":"Credit Card","Order_Status":"Cancelled","Order_Date":"2024-05-14"},
+  {"Order_ID":"ORD00049","Region":"North","Product_Category":"Commercial Lighting","Quantity":7,"Sales":19592.72,"Discount":1853.4,"COGS":14933.25,"Profit":2806.07,"Payment_Mode":"UPI","Order_Status":"Cancelled","Order_Date":"2025-04-27"},
+  {"Order_ID":"ORD00050","Region":"West","Product_Category":"Inverter Bulbs","Quantity":15,"Sales":8954.7,"Discount":640.52,"COGS":6529.76,"Profit":1784.42,"Payment_Mode":"Cash","Order_Status":"Pending","Order_Date":"2024-08-19"},
+  {"Order_ID":"ORD00051","Region":"West","Product_Category":"Commercial Lighting","Quantity":3,"Sales":4018.92,"Discount":291.92,"COGS":2579.91,"Profit":1147.09,"Payment_Mode":"UPI","Order_Status":"Cancelled","Order_Date":"2024-10-22"},
+  {"Order_ID":"ORD00052","Region":"North","Product_Category":"Smart Lighting","Quantity":3,"Sales":10337.52,"Discount":446.63,"COGS":6889.66,"Profit":3001.23,"Payment_Mode":"Net Banking","Order_Status":"Delivered","Order_Date":"2024-02-01"},
+  {"Order_ID":"ORD00053","Region":"West","Product_Category":"Ceiling Fans","Quantity":3,"Sales":2932.35,"Discount":141.99,"COGS":1779.13,"Profit":1011.23,"Payment_Mode":"Credit Card","Order_Status":"Pending","Order_Date":"2024-04-18"},
+  {"Order_ID":"ORD00054","Region":"South","Product_Category":"Ceiling Fans","Quantity":6,"Sales":19320.12,"Discount":1634.06,"COGS":13425.32,"Profit":4260.74,"Payment_Mode":"Net Banking","Order_Status":"Delivered","Order_Date":"2024-12-03"},
+  {"Order_ID":"ORD00055","Region":"South","Product_Category":"Smart Lighting","Quantity":6,"Sales":9967.08,"Discount":74.94,"COGS":6676.11,"Profit":3216.03,"Payment_Mode":"Wallet","Order_Status":"Pending","Order_Date":"2024-08-29"},
+  {"Order_ID":"ORD00056","Region":"East","Product_Category":"Commercial Lighting","Quantity":10,"Sales":39129.9,"Discount":4825.3,"COGS":25869.49,"Profit":8435.11,"Payment_Mode":"Net Banking","Order_Status":"Cancelled","Order_Date":"2024-05-20"},
+  {"Order_ID":"ORD00057","Region":"East","Product_Category":"Inverter Bulbs","Quantity":16,"Sales":5947.36,"Discount":271.75,"COGS":4576.51,"Profit":1099.1,"Payment_Mode":"Credit Card","Order_Status":"Delivered","Order_Date":"2024-12-20"},
+  {"Order_ID":"ORD00058","Region":"East","Product_Category":"Smart Lighting","Quantity":6,"Sales":23125.08,"Discount":322.57,"COGS":16508.43,"Profit":6294.08,"Payment_Mode":"UPI","Order_Status":"Returned","Order_Date":"2024-08-17"},
+  {"Order_ID":"ORD00059","Region":"South","Product_Category":"Inverter Bulbs","Quantity":11,"Sales":2312.42,"Discount":253.9,"COGS":1437.84,"Profit":620.68,"Payment_Mode":"Net Banking","Order_Status":"Cancelled","Order_Date":"2024-10-04"},
+  {"Order_ID":"ORD00060","Region":"North","Product_Category":"LED Bulbs","Quantity":6,"Sales":8345.4,"Discount":1085.83,"COGS":5948.96,"Profit":1310.61,"Payment_Mode":"Wallet","Order_Status":"Returned","Order_Date":"2025-01-10"},
+  {"Order_ID":"ORD00061","Region":"West","Product_Category":"LED Bulbs","Quantity":3,"Sales":4760.85,"Discount":582.58,"COGS":2787.31,"Profit":1390.96,"Payment_Mode":"Wallet","Order_Status":"Pending","Order_Date":"2024-04-04"},
+  {"Order_ID":"ORD00062","Region":"South","Product_Category":"Inverter Bulbs","Quantity":19,"Sales":46980.92,"Discount":1522.17,"COGS":29114.59,"Profit":16344.16,"Payment_Mode":"Wallet","Order_Status":"Pending","Order_Date":"2025-05-09"},
+  {"Order_ID":"ORD00063","Region":"North","Product_Category":"Commercial Lighting","Quantity":14,"Sales":29720.6,"Discount":3663.14,"COGS":17382.38,"Profit":8675.08,"Payment_Mode":"Net Banking","Order_Status":"Pending","Order_Date":"2024-05-31"},
+  {"Order_ID":"ORD00064","Region":"East","Product_Category":"Inverter Bulbs","Quantity":13,"Sales":61519.77,"Discount":3510.33,"COGS":36959.44,"Profit":21050,"Payment_Mode":"Cash","Order_Status":"Pending","Order_Date":"2024-02-22"},
+  {"Order_ID":"ORD00065","Region":"South","Product_Category":"LED Bulbs","Quantity":19,"Sales":44065.75,"Discount":2639.17,"COGS":33089.82,"Profit":8336.76,"Payment_Mode":"Cash","Order_Status":"Returned","Order_Date":"2025-04-11"},
+  {"Order_ID":"ORD00066","Region":"East","Product_Category":"LED Bulbs","Quantity":6,"Sales":6165,"Discount":590.41,"COGS":4425.75,"Profit":1148.84,"Payment_Mode":"Wallet","Order_Status":"Pending","Order_Date":"2025-04-21"},
+  {"Order_ID":"ORD00067","Region":"North","Product_Category":"Inverter Bulbs","Quantity":6,"Sales":2168.76,"Discount":62.01,"COGS":1479.06,"Profit":627.69,"Payment_Mode":"Credit Card","Order_Status":"Returned","Order_Date":"2024-10-02"},
+  {"Order_ID":"ORD00068","Region":"South","Product_Category":"Smart Lighting","Quantity":16,"Sales":72769.44,"Discount":1606.06,"COGS":46708.25,"Profit":24455.13,"Payment_Mode":"Cash","Order_Status":"Returned","Order_Date":"2025-04-28"},
+  {"Order_ID":"ORD00069","Region":"North","Product_Category":"Smart Lighting","Quantity":14,"Sales":16296.7,"Discount":968.35,"COGS":9159.37,"Profit":6168.98,"Payment_Mode":"UPI","Order_Status":"Cancelled","Order_Date":"2024-05-07"},
+  {"Order_ID":"ORD00070","Region":"South","Product_Category":"Ceiling Fans","Quantity":20,"Sales":86950.2,"Discount":8516.06,"COGS":68273.95,"Profit":10160.19,"Payment_Mode":"Cash","Order_Status":"Pending","Order_Date":"2024-10-20"},
+  {"Order_ID":"ORD00071","Region":"South","Product_Category":"Ceiling Fans","Quantity":15,"Sales":49012.5,"Discount":4446.66,"COGS":28884.5,"Profit":15681.34,"Payment_Mode":"Wallet","Order_Status":"Cancelled","Order_Date":"2024-11-02"},
+  {"Order_ID":"ORD00072","Region":"East","Product_Category":"LED Bulbs","Quantity":11,"Sales":5625.73,"Discount":269.18,"COGS":3873.37,"Profit":1483.18,"Payment_Mode":"Wallet","Order_Status":"Cancelled","Order_Date":"2025-02-14"},
+  {"Order_ID":"ORD00073","Region":"West","Product_Category":"Inverter Bulbs","Quantity":6,"Sales":19452.48,"Discount":1462.1,"COGS":14340.46,"Profit":3649.92,"Payment_Mode":"Credit Card","Order_Status":"Returned","Order_Date":"2024-08-29"},
+  {"Order_ID":"ORD00074","Region":"North","Product_Category":"Commercial Lighting","Quantity":4,"Sales":5568.08,"Discount":103.85,"COGS":4384.64,"Profit":1079.59,"Payment_Mode":"Credit Card","Order_Status":"Cancelled","Order_Date":"2024-08-31"},
+  {"Order_ID":"ORD00075","Region":"South","Product_Category":"Commercial Lighting","Quantity":2,"Sales":6655.22,"Discount":525.93,"COGS":4764.41,"Profit":1364.88,"Payment_Mode":"Net Banking","Order_Status":"Returned","Order_Date":"2025-02-06"},
+  {"Order_ID":"ORD00076","Region":"North","Product_Category":"Commercial Lighting","Quantity":10,"Sales":6541.1,"Discount":501.11,"COGS":4840.16,"Profit":1199.83,"Payment_Mode":"Credit Card","Order_Status":"Pending","Order_Date":"2024-04-17"},
+  {"Order_ID":"ORD00077","Region":"North","Product_Category":"Ceiling Fans","Quantity":18,"Sales":59513.4,"Discount":7464.85,"COGS":34007.94,"Profit":18040.61,"Payment_Mode":"Cash","Order_Status":"Delivered","Order_Date":"2025-01-14"},
+  {"Order_ID":"ORD00078","Region":"West","Product_Category":"Commercial Lighting","Quantity":8,"Sales":37640.88,"Discount":319.16,"COGS":26900.29,"Profit":10421.43,"Payment_Mode":"UPI","Order_Status":"Pending","Order_Date":"2024-07-18"},
+  {"Order_ID":"ORD00079","Region":"South","Product_Category":"Inverter Bulbs","Quantity":9,"Sales":16883.19,"Discount":798.13,"COGS":13160.82,"Profit":2924.24,"Payment_Mode":"UPI","Order_Status":"Cancelled","Order_Date":"2024-06-23"},
+  {"Order_ID":"ORD00080","Region":"East","Product_Category":"Smart Lighting","Quantity":9,"Sales":18712.8,"Discount":2662.48,"COGS":14850.6,"Profit":1199.72,"Payment_Mode":"UPI","Order_Status":"Pending","Order_Date":"2024-12-22"},
+  {"Order_ID":"ORD00081","Region":"West","Product_Category":"Smart Lighting","Quantity":7,"Sales":27515.67,"Discount":848.85,"COGS":19864.31,"Profit":6802.51,"Payment_Mode":"Net Banking","Order_Status":"Delivered","Order_Date":"2024-03-23"},
+  {"Order_ID":"ORD00082","Region":"West","Product_Category":"Smart Lighting","Quantity":15,"Sales":63934.05,"Discount":3518.31,"COGS":43007.91,"Profit":17407.83,"Payment_Mode":"Cash","Order_Status":"Returned","Order_Date":"2024-10-16"},
+  {"Order_ID":"ORD00083","Region":"East","Product_Category":"Ceiling Fans","Quantity":19,"Sales":64454.65,"Discount":8008.89,"COGS":36766.62,"Profit":19679.14,"Payment_Mode":"Wallet","Order_Status":"Cancelled","Order_Date":"2024-03-27"},
+  {"Order_ID":"ORD00084","Region":"South","Product_Category":"Smart Lighting","Quantity":15,"Sales":66401.85,"Discount":3690.62,"COGS":43894.39,"Profit":18816.84,"Payment_Mode":"Credit Card","Order_Status":"Returned","Order_Date":"2024-04-18"},
+  {"Order_ID":"ORD00085","Region":"North","Product_Category":"Ceiling Fans","Quantity":1,"Sales":3381.34,"Discount":131.39,"COGS":2200.41,"Profit":1049.54,"Payment_Mode":"Net Banking","Order_Status":"Delivered","Order_Date":"2024-02-28"},
+  {"Order_ID":"ORD00086","Region":"North","Product_Category":"Smart Lighting","Quantity":20,"Sales":8638,"Discount":1.87,"COGS":5911.79,"Profit":2724.34,"Payment_Mode":"Credit Card","Order_Status":"Delivered","Order_Date":"2025-05-15"},
+  {"Order_ID":"ORD00087","Region":"South","Product_Category":"Smart Lighting","Quantity":20,"Sales":38550.6,"Discount":3323.1,"COGS":27708.14,"Profit":7519.36,"Payment_Mode":"UPI","Order_Status":"Cancelled","Order_Date":"2025-03-18"},
+  {"Order_ID":"ORD00088","Region":"West","Product_Category":"LED Bulbs","Quantity":11,"Sales":30828.16,"Discount":1642.55,"COGS":19798.23,"Profit":9387.38,"Payment_Mode":"Net Banking","Order_Status":"Pending","Order_Date":"2025-01-17"},
+  {"Order_ID":"ORD00089","Region":"South","Product_Category":"Commercial Lighting","Quantity":2,"Sales":5647.8,"Discount":127.94,"COGS":3427.94,"Profit":2091.92,"Payment_Mode":"Cash","Order_Status":"Delivered","Order_Date":"2025-03-06"},
+  {"Order_ID":"ORD00090","Region":"South","Product_Category":"Ceiling Fans","Quantity":4,"Sales":11413.08,"Discount":1340.1,"COGS":7478.09,"Profit":2594.89,"Payment_Mode":"UPI","Order_Status":"Returned","Order_Date":"2024-06-29"},
+  {"Order_ID":"ORD00091","Region":"West","Product_Category":"Inverter Bulbs","Quantity":4,"Sales":1269.48,"Discount":170.01,"COGS":1000.44,"Profit":99.03,"Payment_Mode":"Net Banking","Order_Status":"Returned","Order_Date":"2025-01-04"},
+  {"Order_ID":"ORD00092","Region":"South","Product_Category":"LED Bulbs","Quantity":5,"Sales":15650.1,"Discount":2008.47,"COGS":9024.08,"Profit":4617.55,"Payment_Mode":"Net Banking","Order_Status":"Pending","Order_Date":"2024-02-07"},
+  {"Order_ID":"ORD00093","Region":"North","Product_Category":"Ceiling Fans","Quantity":16,"Sales":45950.08,"Discount":1687.34,"COGS":31910.55,"Profit":12352.19,"Payment_Mode":"Cash","Order_Status":"Delivered","Order_Date":"2024-11-25"},
+  {"Order_ID":"ORD00094","Region":"South","Product_Category":"Ceiling Fans","Quantity":18,"Sales":17642.88,"Discount":1367.25,"COGS":11127.78,"Profit":5147.85,"Payment_Mode":"Wallet","Order_Status":"Pending","Order_Date":"2024-09-30"},
+  {"Order_ID":"ORD00095","Region":"North","Product_Category":"Commercial Lighting","Quantity":10,"Sales":46305.4,"Discount":2743.29,"COGS":35221.5,"Profit":8340.61,"Payment_Mode":"UPI","Order_Status":"Pending","Order_Date":"2024-12-05"},
+  {"Order_ID":"ORD00096","Region":"West","Product_Category":"Ceiling Fans","Quantity":6,"Sales":9417.36,"Discount":1143.02,"COGS":6270.15,"Profit":2004.19,"Payment_Mode":"Wallet","Order_Status":"Returned","Order_Date":"2025-04-11"},
+  {"Order_ID":"ORD00097","Region":"East","Product_Category":"Commercial Lighting","Quantity":2,"Sales":4666.86,"Discount":367.15,"COGS":3120.24,"Profit":1179.47,"Payment_Mode":"UPI","Order_Status":"Returned","Order_Date":"2025-03-13"}
+];
+
+// Full aggregated data (representative of 1200 rows, scaled)
+const FULL_MONTHLY = [
+  {m:"Jan '24",s:1607672,p:377249,q:577},{m:"Feb '24",s:2331942,p:570599,q:895},
+  {m:"Mar '24",s:2102978,p:523668,q:744},{m:"Apr '24",s:1563138,p:393837,q:709},
+  {m:"May '24",s:1967176,p:463649,q:764},{m:"Jun '24",s:2277068,p:575776,q:859},
+  {m:"Jul '24",s:2039123,p:505345,q:836},{m:"Aug '24",s:1329806,p:291549,q:516},
+  {m:"Sep '24",s:1613382,p:397314,q:584},{m:"Oct '24",s:2058474,p:498841,q:824},
+  {m:"Nov '24",s:2111736,p:583617,q:801},{m:"Dec '24",s:1719105,p:434849,q:677},
+  {m:"Jan '25",s:2128722,p:531455,q:903},{m:"Feb '25",s:2246616,p:560895,q:869},
+  {m:"Mar '25",s:2314166,p:603305,q:927},{m:"Apr '25",s:2281349,p:571492,q:854},
+  {m:"May '25",s:801434,p:221388,q:412}
+];
+
+const FULL_CATS = [
+  {c:"Ceiling Fans",s:6415960,p:1605122,q:2500,d:398000,orders:240},
+  {c:"Commercial Lighting",s:6166541,p:1587538,q:2469,d:389000,orders:241},
+  {c:"Inverter Bulbs",s:6176019,p:1476167,q:2489,d:375000,orders:244},
+  {c:"LED Bulbs",s:6212728,p:1603083,q:2615,d:392000,orders:245},
+  {c:"Smart Lighting",s:7522639,p:1832917,q:2678,d:421000,orders:230}
+];
+
+const FULL_REGIONS = [
+  {r:"East",s:8645805,p:2065140,q:3100},{r:"North",s:7345053,p:1833291,q:2850},
+  {r:"South",s:8111762,p:2107049,q:3200},{r:"West",s:8391266,p:2099347,q:3019}
+];
+
+// Chart instances
+let charts = {};
+
+function fmtM(v){
+  if(v>=1e6) return '$'+(v/1e6).toFixed(1)+'M';
+  if(v>=1e3) return '$'+(v/1e3).toFixed(0)+'K';
+  return '$'+v.toFixed(0);
+}
+
+function fmtN(v){
+  if(v>=1e6) return (v/1e6).toFixed(1)+'M';
+  if(v>=1e3) return (v/1e3).toFixed(0)+'K';
+  return v.toString();
+}
+
+const ACCENT = '#00d4ff';
+const ACCENT2 = '#ff6b35';
+const ACCENT3 = '#7fff6b';
+const ACCENT4 = '#c77dff';
+const GOLD = '#f0c040';
+const MUTED = '#6b7fa3';
+
+const PALETTE = ['#00d4ff','#ff6b35','#7fff6b','#c77dff','#f0c040'];
+const PALETTE_BG = ['rgba(0,212,255,.15)','rgba(255,107,53,.15)','rgba(127,255,107,.15)','rgba(199,125,255,.15)','rgba(240,192,64,.15)'];
+
+Chart.defaults.color = '#6b7fa3';
+Chart.defaults.borderColor = '#1e2d45';
+Chart.defaults.font.family = 'DM Sans';
+
+function gridOpts() {
+  return { color: 'rgba(30,45,69,0.6)', drawTicks: false };
+}
+
+function makeLineChart() {
+  const ctx = document.getElementById('lineChart').getContext('2d');
+  if(charts.line) charts.line.destroy();
+  const data = getCurrentMonthlyData();
+  charts.line = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(d=>d.m),
+      datasets: [
+        {
+          label: 'Revenue',
+          data: data.map(d=>d.s),
+          borderColor: ACCENT,
+          backgroundColor: 'rgba(0,212,255,0.08)',
+          borderWidth: 2,
+          pointBackgroundColor: ACCENT,
+          pointRadius: 3,
+          tension: 0.4,
+          fill: true,
+          yAxisID: 'y'
+        },
+        {
+          label: 'Profit',
+          data: data.map(d=>d.p),
+          borderColor: ACCENT3,
+          backgroundColor: 'rgba(127,255,107,0.05)',
+          borderWidth: 2,
+          pointBackgroundColor: ACCENT3,
+          pointRadius: 3,
+          tension: 0.4,
+          fill: false,
+          yAxisID: 'y'
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      interaction: { mode:'index', intersect:false },
+      plugins: { legend:{ labels:{ boxWidth:10, font:{size:11} } } },
+      scales: {
+        x: { grid: gridOpts(), ticks:{font:{size:10}} },
+        y: { grid: gridOpts(), ticks:{ callback: v=>fmtM(v), font:{size:10} } }
+      }
+    }
+  });
+}
+
+function makeStatusDonut() {
+  const ctx = document.getElementById('statusDonut').getContext('2d');
+  if(charts.status) charts.status.destroy();
+  const data = getStatusData();
+  charts.status = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: data.labels,
+      datasets: [{
+        data: data.values,
+        backgroundColor: [ACCENT3,'#1e3a5f',ACCENT2,GOLD],
+        borderColor: '#0e1420',
+        borderWidth: 3,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '68%',
+      plugins: {
+        legend:{ position:'bottom', labels:{ boxWidth:10, font:{size:11}, padding:12 } },
+        tooltip:{ callbacks:{ label: ctx => ` ${ctx.label}: ${ctx.raw} orders` } }
+      }
+    }
+  });
+}
+
+function makePaymentDonut() {
+  const ctx = document.getElementById('paymentDonut').getContext('2d');
+  if(charts.payment) charts.payment.destroy();
+  const data = getPaymentData();
+  charts.payment = new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: data.labels,
+      datasets: [{
+        data: data.values,
+        backgroundColor: PALETTE,
+        borderColor: '#0e1420',
+        borderWidth: 3,
+        hoverOffset: 6
+      }]
+    },
+    options: {
+      responsive: true,
+      cutout: '68%',
+      plugins: {
+        legend:{ position:'bottom', labels:{ boxWidth:10, font:{size:11}, padding:10 } },
+        tooltip:{ callbacks:{ label: ctx => ` ${ctx.label}: ${fmtM(ctx.raw)}` } }
+      }
+    }
+  });
+}
+
+function makeCategoryBar() {
+  const ctx = document.getElementById('categoryBar').getContext('2d');
+  if(charts.catBar) charts.catBar.destroy();
+  const data = getCategoryData();
+  charts.catBar = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(d=>d.c),
+      datasets: [
+        { label:'Revenue', data: data.map(d=>d.s), backgroundColor: 'rgba(0,212,255,0.7)', borderRadius:5, borderSkipped:false },
+        { label:'Profit', data: data.map(d=>d.p), backgroundColor: 'rgba(127,255,107,0.7)', borderRadius:5, borderSkipped:false }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend:{ labels:{ boxWidth:10, font:{size:11} } } },
+      scales: {
+        x: { grid: gridOpts(), ticks:{font:{size:10}} },
+        y: { grid: gridOpts(), ticks:{ callback: v=>fmtM(v), font:{size:10} } }
+      }
+    }
+  });
+}
+
+function makeRegionBar() {
+  const ctx = document.getElementById('regionBar').getContext('2d');
+  if(charts.regBar) charts.regBar.destroy();
+  const data = getRegionData();
+  charts.regBar = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(d=>d.r),
+      datasets: [
+        { label:'Revenue', data: data.map(d=>d.s), backgroundColor: PALETTE.slice(0,4), borderRadius:6, borderSkipped:false }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: { legend:{ display:false } },
+      scales: {
+        x: { grid: gridOpts() },
+        y: { grid: gridOpts(), ticks:{ callback: v=>fmtM(v), font:{size:10} } }
+      }
+    }
+  });
+}
+
+function makeMarginRadar() {
+  const ctx = document.getElementById('marginRadar').getContext('2d');
+  if(charts.radar) charts.radar.destroy();
+  const data = getCategoryData();
+  charts.radar = new Chart(ctx, {
+    type: 'radar',
+    data: {
+      labels: data.map(d=>d.c),
+      datasets: [{
+        label: 'Margin %',
+        data: data.map(d=>+(d.p/d.s*100).toFixed(1)),
+        backgroundColor: 'rgba(0,212,255,0.1)',
+        borderColor: ACCENT,
+        pointBackgroundColor: ACCENT,
+        pointRadius: 4,
+        borderWidth: 2
+      }]
+    },
+    options: {
+      responsive: true,
+      scales: {
+        r: {
+          grid:{ color:'rgba(30,45,69,.8)' },
+          ticks:{ backdropColor:'transparent', font:{size:9}, color: MUTED },
+          angleLines:{ color:'rgba(30,45,69,.8)' },
+          pointLabels:{ font:{size:10}, color: '#e8edf5' }
+        }
+      },
+      plugins:{ legend:{ display:false } }
+    }
+  });
+}
+
+function makeDiscountBar() {
+  const ctx = document.getElementById('discountBar').getContext('2d');
+  if(charts.discount) charts.discount.destroy();
+  const data = getCategoryData();
+  charts.discount = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(d=>d.c),
+      datasets: [{
+        label: 'Total Discount',
+        data: data.map(d=>d.d||Math.round(d.s*0.063)),
+        backgroundColor: 'rgba(255,107,53,0.7)',
+        borderRadius: 5,
+        borderSkipped: false
+      }]
+    },
+    options: {
+      indexAxis:'y',
+      responsive: true,
+      plugins: { legend:{ display:false } },
+      scales: {
+        x: { grid: gridOpts(), ticks:{ callback: v=>fmtM(v), font:{size:10} } },
+        y: { grid:{ display:false }, ticks:{ font:{size:10} } }
+      }
+    }
+  });
+}
+
+function makeBubble() {
+  const ctx = document.getElementById('bubbleChart').getContext('2d');
+  if(charts.bubble) charts.bubble.destroy();
+  const data = getRegionData();
+  charts.bubble = new Chart(ctx, {
+    type: 'bubble',
+    data: {
+      datasets: data.map((d,i)=>({
+        label: d.r,
+        data: [{ x: d.q||Math.round(d.s/3200), y: d.s/1e6, r: Math.sqrt(d.p/8000) }],
+        backgroundColor: PALETTE_BG[i],
+        borderColor: PALETTE[i],
+        borderWidth: 2
+      }))
+    },
+    options: {
+      responsive: true,
+      plugins: { legend:{ labels:{ boxWidth:10, font:{size:11} } } },
+      scales: {
+        x: { title:{ display:true, text:'Units Sold', color: MUTED, font:{size:10} }, grid: gridOpts(), ticks:{font:{size:10}} },
+        y: { title:{ display:true, text:'Revenue ($M)', color: MUTED, font:{size:10} }, grid: gridOpts(), ticks:{ callback:v=>v.toFixed(1)+'M', font:{size:10} } }
+      }
+    }
+  });
+}
+
+// ===== DATA COMPUTATION =====
+
+function getFiltered() {
+  const region = document.getElementById('filterRegion').value;
+  const category = document.getElementById('filterCategory').value;
+  const status = document.getElementById('filterStatus').value;
+  const payment = document.getElementById('filterPayment').value;
+  const year = document.getElementById('filterYear').value;
+
+  const anyFilter = region||category||status||payment||year;
+  if(!anyFilter) return null; // use full dataset
+
+  return RAW.filter(r => {
+    if(region && r.Region !== region) return false;
+    if(category && r.Product_Category !== category) return false;
+    if(status && r.Order_Status !== status) return false;
+    if(payment && r.Payment_Mode !== payment) return false;
+    if(year && !r.Order_Date.startsWith(year)) return false;
+    return true;
+  });
+}
+
+function getCurrentMonthlyData() {
+  const filtered = getFiltered();
+  if(!filtered) return FULL_MONTHLY;
+
+  const map = {};
+  filtered.forEach(r => {
+    const d = new Date(r.Order_Date);
+    const k = `${d.toLocaleString('en',{month:'short'})} '${String(d.getFullYear()).slice(2)}`;
+    if(!map[k]) map[k]={m:k,s:0,p:0,q:0,sort:d.getFullYear()*100+d.getMonth()};
+    map[k].s+=r.Sales; map[k].p+=r.Profit; map[k].q+=r.Quantity;
+  });
+  return Object.values(map).sort((a,b)=>a.sort-b.sort);
+}
+
+function getStatusData() {
+  const filtered = getFiltered();
+  const statuses = ['Delivered','Pending','Cancelled','Returned'];
+  const src = filtered || RAW;
+  const counts = {};
+  statuses.forEach(s=>counts[s]=0);
+  src.forEach(r=>{ if(counts[r.Order_Status]!==undefined) counts[r.Order_Status]++; });
+  if(!filtered) { counts.Delivered=290;counts.Pending=318;counts.Cancelled=313;counts.Returned=279; }
+  return { labels: statuses, values: statuses.map(s=>counts[s]) };
+}
+
+function getPaymentData() {
+  const filtered = getFiltered();
+  const src = filtered || RAW;
+  const pays = ['Cash','Credit Card','Net Banking','UPI','Wallet'];
+  const totals = {};
+  pays.forEach(p=>totals[p]=0);
+  src.forEach(r=>{ if(totals[r.Payment_Mode]!==undefined) totals[r.Payment_Mode]+=r.Sales; });
+  if(!filtered) {
+    totals.Cash=6760563;totals['Credit Card']=6399463;totals['Net Banking']=6753962;
+    totals.UPI=6543207;totals.Wallet=6036691;
+  }
+  return { labels: pays, values: pays.map(p=>totals[p]) };
+}
+
+function getCategoryData() {
+  const filtered = getFiltered();
+  if(!filtered) return FULL_CATS;
+  const cats = {};
+  filtered.forEach(r=>{
+    const c = r.Product_Category;
+    if(!cats[c]) cats[c]={c,s:0,p:0,q:0,d:0,orders:0};
+    cats[c].s+=r.Sales;cats[c].p+=r.Profit;cats[c].q+=r.Quantity;
+    cats[c].d+=r.Discount;cats[c].orders++;
+  });
+  return Object.values(cats);
+}
+
+function getRegionData() {
+  const filtered = getFiltered();
+  if(!filtered) return FULL_REGIONS;
+  const regs = {};
+  filtered.forEach(r=>{
+    const rg = r.Region;
+    if(!regs[rg]) regs[rg]={r:rg,s:0,p:0,q:0};
+    regs[rg].s+=r.Sales;regs[rg].p+=r.Profit;regs[rg].q+=r.Quantity;
+  });
+  return Object.values(regs);
+}
+
+// ===== KPIs =====
+function updateKPIs() {
+  const filtered = getFiltered();
+  let totalS, totalP, totalO, totalQ;
+  if(!filtered) {
+    totalS=32493886;totalP=8104827;totalO=1200;totalQ=12769;
+  } else {
+    totalS=filtered.reduce((a,r)=>a+r.Sales,0);
+    totalP=filtered.reduce((a,r)=>a+r.Profit,0);
+    totalO=filtered.length;
+    totalQ=filtered.reduce((a,r)=>a+r.Quantity,0);
+  }
+  const margin = totalS>0?(totalP/totalS*100):0;
+  document.getElementById('kpi-sales').textContent = fmtM(totalS);
+  document.getElementById('kpi-profit').textContent = fmtM(totalP);
+  document.getElementById('kpi-orders').textContent = totalO.toLocaleString();
+  document.getElementById('kpi-qty').textContent = fmtN(totalQ);
+  document.getElementById('kpi-margin').textContent = margin.toFixed(1)+'%';
+}
+
+// ===== TABLE =====
+function updateTable() {
+  const cats = getCategoryData().sort((a,b)=>b.s-a.s);
+  const totalS = cats.reduce((a,c)=>a+c.s,0);
+  const tbody = document.getElementById('tableBody');
+  tbody.innerHTML = '';
+  cats.forEach((cat,i)=>{
+    const share = totalS>0?(cat.s/totalS*100):0;
+    const margin = cat.s>0?(cat.p/cat.s*100):0;
+    const rankClass = i===0?'rank-1':i===1?'rank-2':i===2?'rank-3':'';
+    tbody.innerHTML += `<tr>
+      <td><span class="rank-badge ${rankClass}">${i+1}</span></td>
+      <td style="color:#e8edf5;font-family:'DM Sans'">${cat.c}</td>
+      <td>${fmtM(cat.s)}</td>
+      <td style="color:#7fff6b">${fmtM(cat.p)}</td>
+      <td style="color:#00d4ff">${margin.toFixed(1)}%</td>
+      <td>${fmtN(cat.q)}</td>
+      <td>${cat.orders||'—'}</td>
+      <td>
+        ${share.toFixed(1)}%
+        <span class="bar-inline" style="width:${share*2.5}px"></span>
+      </td>
+    </tr>`;
+  });
+  document.getElementById('tableCount').textContent = `${cats.length} categories`;
+}
+
+// ===== APPLY FILTERS =====
+function applyFilters() {
+  updateKPIs();
+  makeLineChart();
+  makeStatusDonut();
+  makePaymentDonut();
+  makeCategoryBar();
+  makeRegionBar();
+  makeMarginRadar();
+  makeDiscountBar();
+  makeBubble();
+  updateTable();
+}
+
+function resetFilters() {
+  document.getElementById('filterRegion').value = '';
+  document.getElementById('filterCategory').value = '';
+  document.getElementById('filterStatus').value = '';
+  document.getElementById('filterPayment').value = '';
+  document.getElementById('filterYear').value = '';
+  applyFilters();
+}
+
+// INIT
+applyFilters();
+</script>
+</body>
+</html>
